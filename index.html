@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Viewer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Theme: Windows 3.1 */
+        .theme-win31 {
+            --bg-main: #c0c0c0;
+            --bg-panel: #c0c0c0;
+            --bg-input: #fff;
+            --bg-button: #c0c0c0;
+            --bg-button-active: #dfdfdf;
+            --bg-header: #000080;
+            --bg-toast: #000080;
+            --text-main: #000;
+            --text-header: #fff;
+            --text-subtitle: #c0c0c0;
+            --text-placeholder: #808080;
+            --border-light: #fff;
+            --border-dark: #808080;
+            --border-input: #808080;
+            --border-radius: 0;
+            --border-style: solid;
+            --accent: #000080;
+        }
+
+        /* Theme: Crystal White (Modern Apple-inspired light) */
+        .theme-crystal-white {
+            --bg-main: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 100%);
+            --bg-panel: rgba(255, 255, 255, 0.72);
+            --bg-input: rgba(255, 255, 255, 0.9);
+            --bg-button: rgba(255, 255, 255, 0.6);
+            --bg-button-active: rgba(255, 255, 255, 0.9);
+            --bg-header: rgba(255, 255, 255, 0.72);
+            --bg-toast: rgba(0, 122, 255, 0.9);
+            --text-main: #1d1d1f;
+            --text-header: #1d1d1f;
+            --text-subtitle: #86868b;
+            --text-placeholder: #86868b;
+            --border-light: rgba(255, 255, 255, 0.5);
+            --border-dark: rgba(0, 0, 0, 0.04);
+            --border-input: rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --border-style: solid;
+            --accent: #007aff;
+        }
+
+        /* Theme: Crystal Black (Modern Apple-inspired dark) */
+        .theme-crystal-black {
+            --bg-main: linear-gradient(135deg, #1d1d1f 0%, #0d0d0d 100%);
+            --bg-panel: rgba(44, 44, 46, 0.72);
+            --bg-input: rgba(28, 28, 30, 0.9);
+            --bg-button: rgba(58, 58, 60, 0.6);
+            --bg-button-active: rgba(72, 72, 74, 0.9);
+            --bg-header: rgba(44, 44, 46, 0.72);
+            --bg-toast: rgba(10, 132, 255, 0.9);
+            --text-main: #f5f5f7;
+            --text-header: #f5f5f7;
+            --text-subtitle: #98989d;
+            --text-placeholder: #636366;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --border-dark: rgba(0, 0, 0, 0.3);
+            --border-input: rgba(255, 255, 255, 0.1);
+            --border-radius: 12px;
+            --border-style: solid;
+            --accent: #0a84ff;
+        }
+
+        /* Crystal themes: Modern styling overrides */
+        .theme-crystal-white,
+        .theme-crystal-black {
+            /* Use system font stack for modern feel */
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .theme-crystal-white {
+            background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 100%);
+        }
+
+        .theme-crystal-black {
+            background: linear-gradient(135deg, #1d1d1f 0%, #0d0d0d 100%);
+        }
+
+        /* Crystal panels with glassmorphism */
+        .theme-crystal-white .panel,
+        .theme-crystal-white header,
+        .theme-crystal-white .instructions,
+        .theme-crystal-white .theme-menu {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .theme-crystal-black .panel,
+        .theme-crystal-black header,
+        .theme-crystal-black .instructions,
+        .theme-crystal-black .theme-menu {
+            background: rgba(44, 44, 46, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Crystal buttons - flat modern style */
+        .theme-crystal-white .btn,
+        .theme-crystal-white .theme-btn {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .theme-crystal-white .btn:hover,
+        .theme-crystal-white .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-crystal-white .btn:active,
+        .theme-crystal-white .theme-btn:active {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .theme-crystal-black .btn,
+        .theme-crystal-black .theme-btn {
+            background: rgba(58, 58, 60, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .theme-crystal-black .btn:hover,
+        .theme-crystal-black .theme-btn:hover {
+            background: rgba(72, 72, 74, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .theme-crystal-black .btn:active,
+        .theme-crystal-black .theme-btn:active {
+            background: rgba(72, 72, 74, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Crystal inputs */
+        .theme-crystal-white textarea {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .theme-crystal-white textarea:focus {
+            outline: none;
+            border: 1px solid rgba(0, 122, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+        }
+
+        .theme-crystal-black textarea {
+            background: rgba(28, 28, 30, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-crystal-black textarea:focus {
+            outline: none;
+            border: 1px solid rgba(10, 132, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+        }
+
+        /* Crystal preview pane */
+        .theme-crystal-white .preview {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .theme-crystal-black .preview {
+            background: rgba(28, 28, 30, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Crystal toast notifications */
+        .theme-crystal-white .toast,
+        .theme-crystal-black .toast {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Arial', 'MS Sans Serif', sans-serif;
+            background: var(--bg-main);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .theme-btn {
+            padding: 6px 12px;
+            background: var(--bg-button);
+            border: 2px var(--border-style);
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            border-radius: var(--border-radius);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .theme-btn:active {
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+        }
+
+        .theme-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 2px;
+            background: var(--bg-panel);
+            border: 2px var(--border-style);
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            border-radius: var(--border-radius);
+            min-width: 120px;
+        }
+
+        .theme-menu.show {
+            display: block;
+        }
+
+        .theme-option {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-button);
+            border: none;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-family: 'Arial', sans-serif;
+            text-align: left;
+        }
+
+        .theme-option:last-child {
+            border-bottom: none;
+        }
+
+        .theme-option:hover {
+            background: var(--bg-button-active);
+        }
+
+        .theme-option.active {
+            background: var(--bg-button-active);
+            font-weight: bold;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 8px;
+            background: var(--bg-header);
+            color: var(--text-header);
+            border: 2px var(--border-style);
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            border-radius: var(--border-radius);
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+            color: var(--text-header);
+            font-weight: bold;
+        }
+
+        .version {
+            font-size: 0.75rem;
+            color: var(--text-subtitle);
+        }
+
+        .subtitle {
+            color: var(--text-subtitle);
+            font-size: 0.85rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            border: 2px var(--border-style);
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel h2 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 460px;
+            background: var(--bg-input);
+            border: 2px var(--border-style);
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+            border-radius: var(--border-radius);
+            padding: 8px;
+            color: var(--text-main);
+            font-family: 'Courier New', 'Fixedsys', monospace;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: 1px dotted var(--text-main);
+        }
+
+        textarea::placeholder {
+            color: var(--text-placeholder);
+        }
+
+        /* Rendered markdown preview */
+        .preview {
+            width: 100%;
+            height: 460px;
+            overflow-y: auto;
+            background: var(--bg-input);
+            border: 2px var(--border-style);
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+            border-radius: var(--border-radius);
+            padding: 16px 20px;
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .preview .empty-hint {
+            color: var(--text-placeholder);
+            font-style: italic;
+        }
+
+        /* Markdown element styling */
+        .preview h1,
+        .preview h2,
+        .preview h3,
+        .preview h4,
+        .preview h5,
+        .preview h6 {
+            color: var(--text-main);
+            margin: 1em 0 0.5em;
+            line-height: 1.25;
+            font-weight: 600;
+        }
+
+        .preview h1 { font-size: 1.8em; border-bottom: 1px solid var(--border-input); padding-bottom: 0.3em; }
+        .preview h2 { font-size: 1.5em; border-bottom: 1px solid var(--border-input); padding-bottom: 0.3em; }
+        .preview h3 { font-size: 1.25em; }
+        .preview h4 { font-size: 1.1em; }
+        .preview h5 { font-size: 1em; }
+        .preview h6 { font-size: 0.9em; color: var(--text-subtitle); }
+
+        .preview p { margin: 0.6em 0; }
+
+        .preview a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .preview a:hover { text-decoration: underline; }
+
+        .preview ul,
+        .preview ol {
+            margin: 0.6em 0;
+            padding-left: 2em;
+        }
+        .preview li { margin: 0.25em 0; }
+
+        .preview blockquote {
+            margin: 0.8em 0;
+            padding: 0.2em 1em;
+            border-left: 4px solid var(--accent);
+            color: var(--text-subtitle);
+        }
+
+        .preview code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            background: rgba(127, 127, 127, 0.18);
+            padding: 0.15em 0.4em;
+            border-radius: 4px;
+        }
+
+        .preview pre {
+            background: rgba(127, 127, 127, 0.18);
+            padding: 12px 14px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 0.8em 0;
+        }
+        .preview pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .preview table {
+            border-collapse: collapse;
+            margin: 0.8em 0;
+            width: auto;
+            max-width: 100%;
+        }
+        .preview th,
+        .preview td {
+            border: 1px solid var(--border-input);
+            padding: 6px 12px;
+            text-align: left;
+        }
+        .preview th {
+            background: rgba(127, 127, 127, 0.15);
+            font-weight: 600;
+        }
+
+        .preview img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .preview hr {
+            border: none;
+            border-top: 1px solid var(--border-input);
+            margin: 1.2em 0;
+        }
+
+        .preview > *:first-child { margin-top: 0; }
+
+        .controls {
+            margin-top: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px 16px;
+            background: var(--bg-button);
+            border: 2px var(--border-style);
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            border-radius: var(--border-radius);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: normal;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .btn:active {
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+        }
+
+        .stats {
+            margin-top: 10px;
+            padding: 6px 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+            color: var(--text-main);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-toast);
+            color: #fff;
+            padding: 8px 16px;
+            border: 2px var(--border-style);
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            border-radius: var(--border-radius);
+            font-weight: normal;
+            opacity: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--bg-panel);
+            border: 2px var(--border-style);
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            border-radius: var(--border-radius);
+        }
+
+        .instructions h3 {
+            color: var(--text-main);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .instructions code {
+            background: var(--bg-input);
+            padding: 1px 4px;
+            border: 1px solid var(--border-dark);
+            border-radius: var(--border-radius);
+            color: var(--text-main);
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body class="theme-crystal-white">
+    <div class="container">
+        <div class="theme-selector">
+            <button class="theme-btn" onclick="toggleThemeMenu()">Theme</button>
+            <div class="theme-menu" id="theme-menu">
+                <button class="theme-option" data-theme="theme-win31">Win 3.1</button>
+                <button class="theme-option active" data-theme="theme-crystal-white">Crystal White</button>
+                <button class="theme-option" data-theme="theme-crystal-black">Crystal Black</button>
+            </div>
+        </div>
+
+        <header>
+            <h1>Markdown Viewer</h1>
+            <p class="version">Handed to you from your friends at L&amp;M Digital PMO</p>
+            <p class="subtitle">Paste your Markdown on the left and see it rendered on the right</p>
+        </header>
+
+        <div class="main-content">
+            <div class="panel">
+                <h2>Markdown Input</h2>
+                <textarea
+                    id="input"
+                    placeholder="Paste the contents of your .md file here...&#10;&#10;# Example heading&#10;&#10;- bullet one&#10;- bullet two&#10;&#10;**bold** and *italic* text"
+                ></textarea>
+                <div class="controls">
+                    <div class="action-buttons">
+                        <button class="btn" onclick="loadSample()">Load Sample</button>
+                        <button class="btn" onclick="clearAll()">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Rendered Preview</h2>
+                <div class="preview" id="preview">
+                    <span class="empty-hint">Your rendered Markdown will appear here...</span>
+                </div>
+                <div class="controls">
+                    <div class="action-buttons">
+                        <button class="btn" onclick="copyHtml()">Copy HTML</button>
+                        <button class="btn" onclick="printPreview()">Print / Save PDF</button>
+                    </div>
+                </div>
+                <div class="stats" id="stats">
+                    Lines: 0 | Characters: 0 | Words: 0
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Use</h3>
+            <ol>
+                <li>Open your <code>.md</code> file in Notepad (or any text editor)</li>
+                <li>Select all the text (Ctrl+A) and copy it (Ctrl+C)</li>
+                <li>Paste it into the input box on the left (Ctrl+V) &mdash; it renders automatically</li>
+                <li>Read the nicely styled result in the <strong>Rendered Preview</strong> panel</li>
+                <li>Use <strong>Print / Save PDF</strong> to save or print a clean copy</li>
+                <li>Pick a look you like from the <strong>Theme</strong> menu (top right)</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <!-- Markdown parser + HTML sanitizer (loaded from CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
+    <script>
+        const EMPTY_HINT = '<span class="empty-hint">Your rendered Markdown will appear here...</span>';
+
+        // Configure marked: GitHub-style line breaks + GitHub-flavored markdown
+        if (window.marked) {
+            marked.setOptions({ gfm: true, breaks: true });
+        }
+
+        // Theme management
+        function toggleThemeMenu() {
+            document.getElementById('theme-menu').classList.toggle('show');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('theme-menu');
+            const btn = document.querySelector('.theme-btn');
+            if (!menu.contains(e.target) && e.target !== btn) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // Theme selector
+        document.querySelectorAll('.theme-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                document.body.className = theme;
+                document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('theme-menu').classList.remove('show');
+                localStorage.setItem('theme', theme);
+            });
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.body.className = savedTheme;
+            document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === savedTheme);
+            });
+        }
+
+        // Render markdown
+        function render() {
+            const input = document.getElementById('input').value;
+            const preview = document.getElementById('preview');
+            const stats = document.getElementById('stats');
+
+            if (!input.trim()) {
+                preview.innerHTML = EMPTY_HINT;
+                stats.textContent = 'Lines: 0 | Characters: 0 | Words: 0';
+                return;
+            }
+
+            const rawHtml = marked.parse(input);
+            preview.innerHTML = DOMPurify.sanitize(rawHtml);
+
+            const lines = input.split(/\r?\n/).length;
+            const chars = input.length;
+            const words = (input.trim().match(/\S+/g) || []).length;
+            stats.textContent = `Lines: ${lines} | Characters: ${chars} | Words: ${words}`;
+        }
+
+        // Copy rendered HTML to clipboard
+        function copyHtml() {
+            const preview = document.getElementById('preview');
+            if (!document.getElementById('input').value.trim()) {
+                showToast('Nothing to copy!');
+                return;
+            }
+            const html = preview.innerHTML;
+            navigator.clipboard.writeText(html).then(() => {
+                showToast('HTML copied to clipboard!');
+            }).catch(() => {
+                showToast('Copy failed');
+            });
+        }
+
+        // Open the rendered preview in a print-friendly window
+        function printPreview() {
+            if (!document.getElementById('input').value.trim()) {
+                showToast('Nothing to print!');
+                return;
+            }
+            const win = window.open('', '_blank');
+            win.document.write(
+                '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Markdown</title>' +
+                '<style>body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;' +
+                'line-height:1.6;max-width:800px;margin:40px auto;padding:0 20px;color:#1d1d1f;}' +
+                'pre{background:#f4f4f4;padding:12px;border-radius:6px;overflow-x:auto;}' +
+                'code{font-family:Courier New,monospace;}' +
+                'pre code{background:none;}' +
+                'table{border-collapse:collapse;}th,td{border:1px solid #ccc;padding:6px 12px;}' +
+                'blockquote{border-left:4px solid #ccc;margin-left:0;padding-left:1em;color:#666;}' +
+                'img{max-width:100%;}</style></head><body>' +
+                document.getElementById('preview').innerHTML +
+                '</body></html>'
+            );
+            win.document.close();
+            win.focus();
+            setTimeout(() => win.print(), 300);
+        }
+
+        // Clear everything
+        function clearAll() {
+            document.getElementById('input').value = '';
+            render();
+        }
+
+        // Load a small sample document
+        function loadSample() {
+            document.getElementById('input').value =
+'# Markdown Viewer\n\n' +
+'A quick demo of what this page can render.\n\n' +
+'## Text formatting\n\n' +
+'You can write **bold**, *italic*, ~~strikethrough~~ and `inline code`.\n\n' +
+'## Lists\n\n' +
+'1. First item\n' +
+'2. Second item\n' +
+'   - nested bullet\n' +
+'   - another one\n\n' +
+'## Quote\n\n' +
+'> Markdown makes plain text look nice.\n\n' +
+'## Code block\n\n' +
+'```\n' +
+'function hello() {\n' +
+'  console.log("Hello, world!");\n' +
+'}\n' +
+'```\n\n' +
+'## Table\n\n' +
+'| Part | Qty |\n' +
+'| ---- | --- |\n' +
+'| A100 | 5   |\n' +
+'| B200 | 12  |\n\n' +
+'## Link\n\n' +
+'[Visit GitHub](https://github.com)\n';
+            render();
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // Live rendering
+        document.getElementById('input').addEventListener('input', render);
+        document.getElementById('input').addEventListener('paste', () => setTimeout(render, 50));
+    </script>
+</body>
+</html>
