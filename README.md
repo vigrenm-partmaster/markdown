@@ -1,7 +1,7 @@
 # Markdown Viewer
 
 A single-page Markdown viewer. Paste the text from any `.md` file into the
-left box and see it rendered with nice styling on the right. No accounts, no
+top box and see it rendered with nice styling below it. No accounts, no
 saving, no storing — everything happens in your browser.
 
 Built to match the look and feel of the
