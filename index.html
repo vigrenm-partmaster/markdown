@@ -374,6 +374,8 @@
             color: var(--text-main);
             font-size: 15px;
             line-height: 1.7;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         .preview .empty-hint {
@@ -435,10 +437,14 @@
             background: rgba(127, 127, 127, 0.18);
             padding: 12px 14px;
             border-radius: 6px;
-            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
             margin: 0.8em 0;
         }
         .preview pre code {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
             background: none;
             padding: 0;
         }
@@ -448,12 +454,15 @@
             margin: 0.8em 0;
             width: auto;
             max-width: 100%;
+            table-layout: auto;
         }
         .preview th,
         .preview td {
             border: 1px solid var(--border-input);
             padding: 6px 12px;
             text-align: left;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
         .preview th {
             background: rgba(127, 127, 127, 0.15);
@@ -578,7 +587,7 @@
         <header>
             <h1>Markdown Viewer</h1>
             <p class="version">Handed to you from your friends at L&amp;M Digital PMO</p>
-            <p class="subtitle">Paste your Markdown on the left and see it rendered on the right</p>
+            <p class="subtitle">Paste your Markdown in the box above and see it rendered below</p>
         </header>
 
         <div class="main-content">
@@ -618,7 +627,7 @@
             <ol>
                 <li>Open your <code>.md</code> file in Notepad (or any text editor)</li>
                 <li>Select all the text (Ctrl+A) and copy it (Ctrl+C)</li>
-                <li>Paste it into the input box on the left (Ctrl+V) &mdash; it renders automatically</li>
+                <li>Paste it into the input box at the top (Ctrl+V) &mdash; it renders automatically</li>
                 <li>Read the nicely styled result in the <strong>Rendered Preview</strong> panel</li>
                 <li>Use <strong>Print / Save PDF</strong> to save or print a clean copy</li>
                 <li>Pick a look you like from the <strong>Theme</strong> menu (top right)</li>
@@ -721,10 +730,10 @@
                 '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Markdown</title>' +
                 '<style>body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;' +
                 'line-height:1.6;max-width:800px;margin:40px auto;padding:0 20px;color:#1d1d1f;}' +
-                'pre{background:#f4f4f4;padding:12px;border-radius:6px;overflow-x:auto;}' +
+                'body{overflow-wrap:anywhere;word-break:break-word;}pre{background:#f4f4f4;padding:12px;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;}' +
                 'code{font-family:Courier New,monospace;}' +
                 'pre code{background:none;}' +
-                'table{border-collapse:collapse;}th,td{border:1px solid #ccc;padding:6px 12px;}' +
+                'table{border-collapse:collapse;max-width:100%;}th,td{border:1px solid #ccc;padding:6px 12px;overflow-wrap:anywhere;word-break:break-word;}' +
                 'blockquote{border-left:4px solid #ccc;margin-left:0;padding-left:1em;color:#666;}' +
                 'img{max-width:100%;}</style></head><body>' +
                 document.getElementById('preview').innerHTML +
